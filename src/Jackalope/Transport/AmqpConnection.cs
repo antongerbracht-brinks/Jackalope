@@ -456,6 +456,40 @@ internal sealed class AmqpConnection
         _incomingFrameMax = _outgoingFrameMax;
         HeartbeatSeconds = heartbeat;
         _state = State.AwaitingOpen;
+
+        if (heartbeat > 0)
+        {
+            Volatile.Write(ref _lastReceivedTicks, Environment.TickCount64);
+            _ = HeartbeatLoopAsync(heartbeat);
+        }
+    }
+
+    /// <summary>
+    /// Sends a heartbeat every half interval (as RabbitMQ does) and drops the connection if nothing at all has
+    /// been received from the client for two full intervals.
+    /// </summary>
+    private async Task HeartbeatLoopAsync(ushort heartbeatSeconds)
+    {
+        var interval = TimeSpan.FromMilliseconds(heartbeatSeconds * 500.0);
+        long timeoutMs = heartbeatSeconds * 2000L;
+        using var timer = new PeriodicTimer(interval);
+        try
+        {
+            while (await timer.WaitForNextTickAsync(_abort.Token).ConfigureAwait(false))
+            {
+                Send(AmqpConstants.HeartbeatFrame);
+                long silentMs = Environment.TickCount64 - Volatile.Read(ref _lastReceivedTicks);
+                if (silentMs > timeoutMs)
+                {
+                    Log($"missed heartbeats from client: nothing received for {silentMs} ms (timeout {heartbeatSeconds}s x 2); closing");
+                    Abort();
+                    return;
+                }
+            }
+        }
+        catch (OperationCanceledException)
+        {
+        }
     }
 
     /// <summary>Starts a server-initiated connection close (hard error or shutdown). Returns true to keep reading for close-ok.</summary>
