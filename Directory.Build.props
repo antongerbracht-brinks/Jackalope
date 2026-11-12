@@ -4,8 +4,18 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Version>0.1.0</Version>
+    <!-- CI appends a pre-release suffix via -p:VersionSuffix=..., or sets -p:Version=... from a v* tag. -->
+    <VersionPrefix>0.1.0</VersionPrefix>
     <Authors>Jackalope contributors</Authors>
     <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/antongerbracht-brinks/Jackalope</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/antongerbracht-brinks/Jackalope</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
 </Project>

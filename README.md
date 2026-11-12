@@ -267,3 +267,11 @@ dotnet pack -c Release -o artifacts
 # artifacts/Jackalope.<ver>.nupkg         library + fixture API
 # artifacts/Jackalope.Server.<ver>.nupkg  dotnet tool "jackalope"
 ```
+
+CI (`.github/workflows/ci.yml`) builds, tests and packs every push and PR to `main`. Pushes to `main` publish
+`<ver>-ci.<run>` prereleases to nuget.org, and pushing a `v1.2.3` tag publishes `1.2.3`. Publishing uses
+nuget.org Trusted Publishing (GitHub OIDC), so there is no stored API key; see the header of the workflow for setup.
+
+## License
+
+[MIT](LICENSE)
