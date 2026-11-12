@@ -47,6 +47,8 @@ internal sealed class BrokerExchange(string name, ExchangeKind kind, string type
             bool match = Kind switch
             {
                 ExchangeKind.Direct => binding.RoutingKey == routingKey,
+                ExchangeKind.Fanout => true,
+                ExchangeKind.Topic => TopicMatcher.IsMatch(binding.RoutingKey, routingKey),
                 _ => false,
             };
 

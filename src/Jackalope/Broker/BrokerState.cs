@@ -18,6 +18,8 @@ internal sealed class BrokerState
         Options = options;
         AddBuiltIn("", ExchangeKind.Direct, "direct");
         AddBuiltIn("amq.direct", ExchangeKind.Direct, "direct");
+        AddBuiltIn("amq.fanout", ExchangeKind.Fanout, "fanout");
+        AddBuiltIn("amq.topic", ExchangeKind.Topic, "topic");
     }
 
     public object Sync { get; } = new();
@@ -92,7 +94,9 @@ internal sealed class BrokerState
     private static ExchangeKind ParseExchangeType(string type) => type switch
     {
         "direct" => ExchangeKind.Direct,
-        "headers" or "topic" or "fanout" => throw new ConnectionException(ReplyCode.NotImplemented,
+        "fanout" => ExchangeKind.Fanout,
+        "topic" => ExchangeKind.Topic,
+        "headers" => throw new ConnectionException(ReplyCode.NotImplemented,
             $"exchange type '{type}' is not supported by Jackalope", Method.ExchangeDeclare),
         _ => throw new ConnectionException(ReplyCode.CommandInvalid,
             $"unknown exchange type '{type}'", Method.ExchangeDeclare),
