@@ -195,6 +195,12 @@ internal sealed class ServerChannel(AmqpConnection connection, BrokerState broke
             case Method.BasicAck:
                 BasicAck(ref reader);
                 break;
+            case Method.BasicNack:
+                BasicNack(ref reader);
+                break;
+            case Method.BasicReject:
+                BasicReject(ref reader);
+                break;
             case Method.ConfirmSelect:
                 ConfirmSelect(ref reader);
                 break;
@@ -526,6 +532,35 @@ internal sealed class ServerChannel(AmqpConnection connection, BrokerState broke
         ulong deliveryTag = reader.ReadLongLong();
         bool multiple = (reader.ReadOctet() & 1) != 0;
         TakeUnacked(deliveryTag, multiple, Method.BasicAck);
+        DispatchConsumedQueues();
+    }
+
+    private void BasicNack(ref AmqpReader reader)
+    {
+        ulong deliveryTag = reader.ReadLongLong();
+        byte bits = reader.ReadOctet();
+        bool multiple = (bits & 1) != 0, requeue = (bits & 2) != 0;
+        Settle(TakeUnacked(deliveryTag, multiple, Method.BasicNack), requeue);
+    }
+
+    private void BasicReject(ref AmqpReader reader)
+    {
+        ulong deliveryTag = reader.ReadLongLong();
+        bool requeue = (reader.ReadOctet() & 1) != 0;
+        Settle(TakeUnacked(deliveryTag, multiple: false, Method.BasicReject), requeue);
+    }
+
+    /// <summary>Negative acknowledgement: requeue (redelivered=true) or discard. Dead-lettering is not supported.</summary>
+    private void Settle(List<UnackedDelivery> deliveries, bool requeue)
+    {
+        if (requeue)
+        {
+            foreach (var queue in Requeue(deliveries))
+            {
+                queue.Dispatch();
+            }
+        }
+
         DispatchConsumedQueues();
     }
 
