@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>jackalope</ToolCommandName>
+    <PackageId>Jackalope.Server</PackageId>
+    <Description>Standalone Jackalope mock RabbitMQ (AMQP 0-9-1) broker. Prints PORT=&lt;n&gt; on stdout once listening.</Description>
+    <PackageTags>rabbitmq;amqp;testing;mock;broker;dotnet-tool</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Jackalope\Jackalope.csproj" />
+  </ItemGroup>
+
+</Project>
