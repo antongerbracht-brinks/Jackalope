@@ -7,10 +7,12 @@
     <PackageId>Jackalope.Server</PackageId>
     <Description>Standalone Jackalope mock RabbitMQ (AMQP 0-9-1) broker. Prints PORT=&lt;n&gt; on stdout once listening.</Description>
     <PackageTags>rabbitmq;amqp;testing;mock;broker;dotnet-tool</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Jackalope\Jackalope.csproj" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>
